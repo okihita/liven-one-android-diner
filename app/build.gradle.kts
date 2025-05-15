@@ -1,7 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
+
+    alias(libs.plugins.serialization)
 }
 
 android {
@@ -44,7 +48,6 @@ dependencies {
 
     // Core AndroidX Libraries - Fundamental utilities and compatibility layers
     implementation(libs.androidx.core.ktx) // Kotlin extensions for AndroidX Core
-    implementation(libs.androidx.appcompat) // Provides app compatibility for older Android versions
 
     // UI Libraries - Material Design Components & Jetpack Compose
     implementation(libs.material) // Material Design components for views
@@ -57,9 +60,20 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material.icons.extended)
 
+    // DI
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.compiler)
+
+    // Networking, Parsing
+    implementation(libs.retrofit)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.retrofit.converter.kotlinx.serialization)
+    implementation(libs.kotlinx.serialization)
 
     // Lifecycle Libraries - Managing lifecycle-aware components
     implementation(libs.androidx.lifecycle.runtime.ktx) // Lifecycle runtime Kotlin extensions
+    implementation(libs.androidx.lifecycle.viewmodel.ktx) // Lifecycle ViewModels for Jetpack Compose
 
     // Unit Testing Libraries
     testImplementation(libs.junit) // JUnit for local unit tests

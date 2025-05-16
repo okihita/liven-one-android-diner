@@ -8,5 +8,5 @@ data class RegisterRequest(
     val email: String,
     val password: String,
     @SerialName("user_type")
-    val userType: String = "diner"
+    val userType: String
 )

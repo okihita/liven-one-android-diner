@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.liven.diner.ui.navigation.Screen
 import com.liven.diner.ui.screen.home.HomeScreen
 import com.liven.diner.ui.screen.login.LoginScreen
+import com.liven.diner.ui.screen.register.RegisterScreen
 import com.liven.diner.ui.theme.DinerExperienceTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -47,7 +48,14 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.Register.route) {
-                            RegisterScreen {}
+                            RegisterScreen(
+                                onRegisterSuccess = {
+                                    navController.navigate(Screen.Login.route) {
+                                        popUpTo(Screen.Register.route) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            )
                         }
                         composable(Screen.Home.route) {
                             HomeScreen()

@@ -1,4 +1,4 @@
-package com.liven.diner.ui.screen.login
+package com.liven.diner.ui.screen.register
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -27,39 +29,38 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(
-    onLoginSuccess: () -> Unit,
-    gotoRegister: () -> Unit = {},
-    vm: LoginViewModel = hiltViewModel()
+fun RegisterScreen(
+    onRegisterSuccess: () -> Unit,
+    vm: RegisterViewModel = hiltViewModel()
 ) {
 
     val email by vm.email.collectAsState()
     val password by vm.password.collectAsState()
 
-    val postLoginResult by vm.postLoginResult.collectAsState()
+    val registerResult by vm.postRegisterResult.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(postLoginResult) {
-        when (postLoginResult) {
-            PostLoginResult.Idle -> {}
-            PostLoginResult.Loading -> {}
-            is PostLoginResult.Error -> {
+    LaunchedEffect(registerResult) {
+        when (registerResult) {
+            PostRegisterResult.Idle -> {}
+            PostRegisterResult.Loading -> {}
+            is PostRegisterResult.Error -> {
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(
-                        message = (postLoginResult as PostLoginResult.Error).message,
+                        message = (registerResult as PostRegisterResult.Error).message,
                         withDismissAction = true
                     )
                 }
             }
 
-            is PostLoginResult.Success -> {
+            is PostRegisterResult.Success -> {
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(
-                        message = "Success!",
-                        withDismissAction = true
+                        message = (registerResult as PostRegisterResult.Success).message,
+                        duration = SnackbarDuration.Short
                     )
-                    onLoginSuccess()
+                    onRegisterSuccess()
                 }
             }
         }
@@ -75,7 +76,7 @@ fun LoginScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Login", style = typography.headlineMedium)
+            Text("Register", style = typography.headlineMedium)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -86,7 +87,7 @@ fun LoginScreen(
                 label = { Text("Email") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                isError = postLoginResult is PostLoginResult.Error
+                isError = registerResult is PostRegisterResult.Error
             )
 
             // Password Field
@@ -96,18 +97,25 @@ fun LoginScreen(
                 label = { Text("Password") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                isError = postLoginResult is PostLoginResult.Error
+                isError = registerResult is PostRegisterResult.Error
             )
 
-            if (postLoginResult is PostLoginResult.Loading) {
+            if (registerResult is PostRegisterResult.Loading) {
                 CircularProgressIndicator()
             } else {
                 Button(
-                    onClick = { vm.postLoginRequest() }
-                ) { Text("Login") }
+                    onClick = { vm.postRegisterRequest() },
+                ) { Text("Register as Diner") }
             }
 
-            Button(onClick = gotoRegister) { Text("Register") }
+            if (registerResult is PostRegisterResult.Error && snackbarHostState.currentSnackbarData == null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = (registerResult as PostRegisterResult.Error).message,
+                    color = colorScheme.error,
+                    style = typography.bodySmall
+                )
+            }
         }
     }
 }

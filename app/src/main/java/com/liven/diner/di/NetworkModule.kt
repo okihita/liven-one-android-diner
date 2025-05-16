@@ -1,5 +1,6 @@
 package com.liven.diner.di
 
+import com.liven.diner.data.remote.AuthInterceptor
 import com.liven.diner.data.remote.LivenOneApi
 import dagger.Module
 import dagger.Provides
@@ -26,9 +27,12 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideOkHttpClient(): OkHttpClient =
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor
+    ): OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            .addInterceptor(authInterceptor)
             .build()
 
     @Singleton

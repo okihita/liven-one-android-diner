@@ -6,10 +6,9 @@ import com.liven.diner.data.model.auth.RegisterRequest
 import com.liven.diner.data.model.auth.RegisterResponse
 import com.liven.diner.data.model.order.MenuItem
 import com.liven.diner.data.model.order.Order
-import com.liven.diner.data.model.order.OrderItem
 import com.liven.diner.data.model.order.OrderRequest
 import com.liven.diner.data.model.order.OrderResponse
-import com.liven.diner.data.model.venue.Venue
+import com.liven.diner.data.model.venue.VenuesResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -35,7 +34,7 @@ interface LivenOneApi {
     suspend fun getVenues(
         @Query("name") name: String? = null,
         @Query("cuisine_type") cuisineType: String? = null,
-    ): List<Venue>
+    ): VenuesResponse
 
     @GET("/venues/{venueId}/menu")
     suspend fun getVenueMenu(

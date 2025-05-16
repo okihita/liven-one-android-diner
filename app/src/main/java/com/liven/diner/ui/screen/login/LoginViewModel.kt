@@ -2,7 +2,7 @@ package com.liven.diner.ui.screen.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.liven.diner.data.model.LoginRequest
+import com.liven.diner.data.model.auth.LoginRequest
 import com.liven.diner.data.remote.LivenOneApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

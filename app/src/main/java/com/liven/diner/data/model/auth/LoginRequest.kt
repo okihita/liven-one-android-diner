@@ -1,4 +1,4 @@
-package com.liven.diner.data.model
+package com.liven.diner.data.model.auth
 
 import kotlinx.serialization.Serializable
 

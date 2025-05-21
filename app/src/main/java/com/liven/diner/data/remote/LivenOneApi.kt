@@ -30,13 +30,13 @@ interface LivenOneApi {
     ): LoginResponse
 
     // --- Venues ---
-    @GET("/venues")
+    @GET("/public/venues")
     suspend fun getVenues(
         @Query("name") name: String? = null,
         @Query("cuisine_type") cuisineType: String? = null,
     ): VenuesResponse
 
-    @GET("/venues/{venueId}/menu")
+    @GET("/public/venues/{venueId}/menu")
     suspend fun getVenueMenu(
         @Path("venueId") venueId: Long
     ): List<MenuItem>

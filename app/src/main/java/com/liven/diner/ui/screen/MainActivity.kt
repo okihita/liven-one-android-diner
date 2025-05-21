@@ -6,14 +6,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.liven.diner.ui.navigation.NAV_ARG_VENUE_ID
 import com.liven.diner.ui.navigation.Screen
 import com.liven.diner.ui.screen.home.HomeScreen
 import com.liven.diner.ui.screen.login.LoginScreen
 import com.liven.diner.ui.screen.register.RegisterScreen
+import com.liven.diner.ui.screen.venue.VenueDetailScreen
 import com.liven.diner.ui.theme.DinerExperienceTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -58,7 +63,21 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.Home.route) {
-                            HomeScreen()
+                            HomeScreen(onItemClick = { venue ->
+                                navController.navigate(Screen.VenueDetail.createRoute(venue.id))
+                            })
+                        }
+                        composable(
+                            route = Screen.VenueDetail.route,
+                            arguments = listOf(navArgument(NAV_ARG_VENUE_ID) {
+                                type = NavType.LongType
+                            })
+                        ) {
+                            val venueId = it.arguments?.getLong(NAV_ARG_VENUE_ID)
+                            if (venueId != null) VenueDetailScreen(
+                                navController, venueId
+                            )
+                            else Text("Error: Venue ID not found.")
                         }
                     }
                 }

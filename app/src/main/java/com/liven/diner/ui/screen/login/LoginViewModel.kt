@@ -18,6 +18,13 @@ sealed interface PostLoginResult {
     data class Error(val message: String) : PostLoginResult
 }
 
+// When app starts, check if user is already logged in (token exists) to skip Login page
+sealed interface AuthenticationState {
+    object Undetermined : AuthenticationState
+    object Authenticated : AuthenticationState
+    object Unauthenticated : AuthenticationState
+}
+
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepo: AuthRepository
@@ -32,12 +39,30 @@ class LoginViewModel @Inject constructor(
     private val _postLoginResult = MutableStateFlow<PostLoginResult>(PostLoginResult.Idle)
     val postLoginResult: StateFlow<PostLoginResult> = _postLoginResult.asStateFlow()
 
+    private val _authState =
+        MutableStateFlow<AuthenticationState>(AuthenticationState.Undetermined)
+    val authenticationState: StateFlow<AuthenticationState> = _authState.asStateFlow()
+
     fun onEmailChange(email: String) {
         _email.value = email
     }
 
     fun onPasswordChange(password: String) {
         _password.value = password
+    }
+
+    init {
+        checkCurrentUser()
+    }
+
+    private fun checkCurrentUser() {
+        viewModelScope.launch {
+            if (authRepo.isLoggedIn()) {
+                _authState.value = AuthenticationState.Authenticated
+            } else {
+                _authState.value = AuthenticationState.Unauthenticated
+            }
+        }
     }
 
     fun postLoginRequest() {

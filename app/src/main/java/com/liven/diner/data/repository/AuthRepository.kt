@@ -14,6 +14,7 @@ import javax.inject.Singleton
 interface AuthRepository {
     suspend fun postRegister(request: RegisterRequest): Result<RegisterResponse>
     suspend fun postLogin(request: LoginRequest): Result<LoginResponse>
+    fun isLoggedIn(): Boolean
 }
 
 @Singleton
@@ -43,5 +44,9 @@ class AuthRepositoryImpl @Inject constructor(
                 Result.failure(e)
             }
         }
+    }
+
+    override fun isLoggedIn(): Boolean {
+        return authTokenProvider.loadAuthToken() != null
     }
 }

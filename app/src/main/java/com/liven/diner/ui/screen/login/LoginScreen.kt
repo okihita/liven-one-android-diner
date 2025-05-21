@@ -18,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -36,9 +38,25 @@ fun LoginScreen(
     val email by vm.email.collectAsState()
     val password by vm.password.collectAsState()
 
+    val authState by vm.authenticationState.collectAsState()
+    var showLoginForm by remember { mutableStateOf(false) }
+
     val postLoginResult by vm.postLoginResult.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(authState) {
+        when (authState) {
+            AuthenticationState.Undetermined -> {}
+            AuthenticationState.Unauthenticated -> {
+                showLoginForm = true
+            }
+
+            AuthenticationState.Authenticated -> {
+                onLoginSuccess()
+            }
+        }
+    }
 
     LaunchedEffect(postLoginResult) {
         when (postLoginResult) {
@@ -65,49 +83,51 @@ fun LoginScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("Login", style = typography.headlineMedium)
+    if (showLoginForm) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Login", style = typography.headlineMedium)
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Username Field
-            OutlinedTextField(
-                value = email,
-                onValueChange = { vm.onEmailChange(it) },
-                label = { Text("Email") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                isError = postLoginResult is PostLoginResult.Error
-            )
+                // Username Field
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { vm.onEmailChange(it) },
+                    label = { Text("Email") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = postLoginResult is PostLoginResult.Error
+                )
 
-            // Password Field
-            OutlinedTextField(
-                value = password,
-                onValueChange = { vm.onPasswordChange(it) },
-                label = { Text("Password") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                isError = postLoginResult is PostLoginResult.Error
-            )
+                // Password Field
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { vm.onPasswordChange(it) },
+                    label = { Text("Password") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = postLoginResult is PostLoginResult.Error
+                )
 
-            if (postLoginResult is PostLoginResult.Loading) {
-                CircularProgressIndicator()
-            } else {
-                Button(
-                    onClick = { vm.postLoginRequest() }
-                ) { Text("Login") }
+                if (postLoginResult is PostLoginResult.Loading) {
+                    CircularProgressIndicator()
+                } else {
+                    Button(
+                        onClick = { vm.postLoginRequest() }
+                    ) { Text("Login") }
+                }
+
+                Button(onClick = gotoRegister) { Text("Register") }
             }
-
-            Button(onClick = gotoRegister) { Text("Register") }
         }
     }
 }

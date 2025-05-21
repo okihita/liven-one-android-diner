@@ -1,7 +1,13 @@
 package com.liven.diner.ui.navigation
 
+const val NAV_ARG_VENUE_ID = "venueId"
+
 sealed class Screen(val route: String) {
-    object Home : Screen("home")
-    object Login : Screen("login")
     object Register : Screen("register")
+    object Login : Screen("login")
+    object Home : Screen("home")
+
+    object VenueDetail : Screen("venueDetail/{$NAV_ARG_VENUE_ID}") {
+        fun createRoute(venueId: Long) = "venueDetail/$venueId"
+    }
 }

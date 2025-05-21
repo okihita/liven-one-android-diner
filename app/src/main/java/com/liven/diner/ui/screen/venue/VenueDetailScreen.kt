@@ -1,15 +1,24 @@
 package com.liven.diner.ui.screen.venue
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.RemoveCircleOutline
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -18,11 +27,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.liven.diner.data.model.order.MenuItem
@@ -31,17 +41,14 @@ import com.liven.diner.data.model.order.MenuItem
 @Composable
 fun VenueDetailScreen(
     navController: NavController,
-    venueId: Long,
     vm: VenueDetailViewModel = hiltViewModel()
 ) {
-    val getMenuByVenueIdResult by vm.getMenuByVenueIdResult.collectAsState()
-
-    LaunchedEffect(venueId) { vm.getVenueDetail() }
+    val screenState by vm.screenState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Venue Details") },
+                title = { Text("Venue Menu") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -51,47 +58,108 @@ fun VenueDetailScreen(
                     }
                 }
             )
-        }
+        },
+        floatingActionButton = {
+            // Show FAB only if there are items in the cart
+            if (screenState.cartItems.isNotEmpty()) {
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        // TODO: Navigate to Cart/Checkout Screen
+                        // For now, log or show a toast
+                        // You'll pass screenState.cartItems and venueId to the next screen/ViewModel
+                        android.util.Log.d(
+                            "VenueDetailScreen",
+                            "Order Now clicked. Items: ${screenState.cartItems}, Total: ${screenState.totalPriceCents}"
+                        )
+                    },
+                    icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = "Cart") },
+                    text = { Text("View Cart (Rp %.0f)".format(screenState.totalPriceCents / 100.0)) }
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.Center
+
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when (getMenuByVenueIdResult) {
-                is GetVenueDetailResult.Loading -> CircularProgressIndicator()
-                is GetVenueDetailResult.Success -> {
-
-                    val menuItems: List<MenuItem> =
-                        (getMenuByVenueIdResult as GetVenueDetailResult.Success).menuItems
-
-                    LazyColumn {
-                        items(menuItems.size) { index ->
-                            MenuItem(menuItems[index])
+            if (screenState.isLoadingMenu) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else if (screenState.error != null) {
+                Text("Error: ${screenState.error}", color = MaterialTheme.colorScheme.error)
+            } else if (screenState.menuItems.isEmpty()) {
+                Text("No menu items found")
+            } else {
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(screenState.menuItems.size) { index ->
+                        val menuItem = screenState.menuItems[index]
+                        val quantity = screenState.selectedItems[menuItem.id] ?: 0
+                        MenuItemRow(
+                            menuItem = menuItem,
+                            quantity = quantity,
+                            onIncrement = { vm.incrementItemQty(menuItem.id) },
+                            onDecrement = { vm.decrementItemQty(menuItem.id) }
+                        )
+                        if (index < screenState.menuItems.size - 1) {
+                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         }
                     }
                 }
-
-                is GetVenueDetailResult.Error -> {
-                    val error = getMenuByVenueIdResult as GetVenueDetailResult.Error
-                    Text("Error: ${error.message}", color = MaterialTheme.colorScheme.error)
-                }
-
-                GetVenueDetailResult.Idle -> {}
             }
         }
     }
 }
 
 @Composable
-fun MenuItem(menuItem: MenuItem, onMenuItemClick: (MenuItem) -> Unit = {}) {
-    ListItem(
-        headlineContent = { Text(menuItem.name) },
-        supportingContent = { Text(menuItem.description) },
-        trailingContent = { Text(menuItem.priceInCents.toString()) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
-            .clickable { onMenuItemClick(menuItem) }
-    )
-}
+fun MenuItemRow(
+    menuItem: MenuItem,
+    quantity: Int,
+    onIncrement: () -> Unit,
+    onDecrement: () -> Unit,
+) = ListItem(
+    headlineContent = { Text(menuItem.name, style = MaterialTheme.typography.titleMedium) },
+    supportingContent = {
+        if (menuItem.description.isNotBlank()) {
+            Text(menuItem.description, style = MaterialTheme.typography.bodySmall)
+        }
+    },
+    leadingContent = {
+        // Optional: Display an image if you add it to your MenuItem model
+        // Image(painter = rememberAsyncImagePainter(model = menuItem.imageUrl), contentDescription = menuItem.name)
+    },
+    trailingContent = {
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = "USD %.0f".format(menuItem.priceInCents / 100.0), // Basic formatting
+                style = MaterialTheme.typography.titleSmall
+            )
+            Spacer(Modifier.height(4.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onDecrement, enabled = quantity > 0) {
+                    Icon(
+                        Icons.Filled.RemoveCircleOutline,
+                        contentDescription = "Decrement quantity"
+                    )
+                }
+                Text(
+                    text = quantity.toString(),
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp)
+                )
+                IconButton(onClick = onIncrement) {
+                    Icon(
+                        Icons.Filled.AddCircleOutline,
+                        contentDescription = "Increment quantity"
+                    )
+                }
+            }
+        }
+    },
+    modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 8.dp) // Removed horizontal padding to align with typical ListItem
+)

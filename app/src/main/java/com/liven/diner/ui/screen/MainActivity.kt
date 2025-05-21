@@ -74,9 +74,7 @@ class MainActivity : ComponentActivity() {
                             })
                         ) {
                             val venueId = it.arguments?.getLong(NAV_ARG_VENUE_ID)
-                            if (venueId != null) VenueDetailScreen(
-                                navController, venueId
-                            )
+                            if (venueId != null) VenueDetailScreen(navController)
                             else Text("Error: Venue ID not found.")
                         }
                     }

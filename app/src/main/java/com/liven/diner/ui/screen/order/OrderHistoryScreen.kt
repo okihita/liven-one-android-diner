@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.liven.diner.data.model.order.Order
 import com.liven.diner.data.model.order.OrderStatus
+import com.liven.diner.ui.navigation.Screen
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -121,12 +122,7 @@ fun OrderHistoryScreen(
                             OrderHistoryItemCard(
                                 order = order,
                                 onClick = {
-                                    // Navigate to Order Detail Screen (future step)
-                                    // navController.navigate(Screen.OrderDetail.createRoute(order.id))
-                                    android.util.Log.d(
-                                        "OrderHistory",
-                                        "Clicked order ID: ${order.id}"
-                                    )
+                                    navController.navigate(Screen.OrderDetail.createRoute(order.id))
                                 }
                             )
                         }
@@ -166,10 +162,6 @@ fun OrderHistoryItemCard(order: Order, onClick: () -> Unit) {
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
-            // Assuming your Order DTO might have venue name directly or nested
-            // If order.venue.name is available from preloading in backend:
-            // Text("Venue: ${order.venue?.name ?: "N/A"}", style = MaterialTheme.typography.bodySmall)
-            // For now, let's just use venueId as per your current Order DTO definition
             Text("Venue ID: ${order.venueId}", style = MaterialTheme.typography.bodySmall)
 
             Text(
@@ -182,8 +174,6 @@ fun OrderHistoryItemCard(order: Order, onClick: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold
             )
-            // You could add a summary of items here if needed, e.g., "2 items"
-            // Text("${order.orderItems.size} items", style = MaterialTheme.typography.bodySmall)
         }
     }
 }

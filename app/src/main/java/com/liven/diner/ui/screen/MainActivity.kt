@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -17,12 +16,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.liven.diner.data.remote.SessionManager
+import com.liven.diner.ui.navigation.NAV_ARG_ORDER_ID
 import com.liven.diner.ui.navigation.NAV_ARG_VENUE_ID
 import com.liven.diner.ui.navigation.Screen
 import com.liven.diner.ui.screen.cart.CartScreen
 import com.liven.diner.ui.screen.home.HomeScreen
 import com.liven.diner.ui.screen.login.LoginScreen
 import com.liven.diner.ui.screen.order.OrderHistoryScreen
+import com.liven.diner.ui.screen.order.detail.OrderDetailScreen
 import com.liven.diner.ui.screen.register.RegisterScreen
 import com.liven.diner.ui.screen.venue.VenueDetailScreen
 import com.liven.diner.ui.theme.DinerExperienceTheme
@@ -82,6 +83,7 @@ fun AppNavigation(
                 }
             )
         }
+
         composable(Screen.Register.route) {
             RegisterScreen(
                 onRegisterSuccess = {
@@ -92,6 +94,7 @@ fun AppNavigation(
                 }
             )
         }
+
         composable(Screen.Home.route) {
             HomeScreen(
                 navController = navController,
@@ -99,21 +102,23 @@ fun AppNavigation(
                     navController.navigate(Screen.VenueDetail.createRoute(venue.id))
                 })
         }
+
         composable(
             route = Screen.VenueDetail.route,
             arguments = listOf(navArgument(NAV_ARG_VENUE_ID) {
                 type = NavType.LongType
             })
-        ) {
-            val venueId = it.arguments?.getLong(NAV_ARG_VENUE_ID)
-            if (venueId != null) VenueDetailScreen(navController)
-            else Text("Error: Venue ID not found.")
-        }
-        composable(Screen.Cart.route) {
-            CartScreen(navController)
-        }
-        composable(Screen.OrderHistory.route) {
-            OrderHistoryScreen(navController)
-        }
+        ) { VenueDetailScreen(navController) }
+
+        composable(Screen.Cart.route) { CartScreen(navController) }
+
+        composable(Screen.OrderHistory.route) { OrderHistoryScreen(navController) }
+
+        composable(
+            Screen.OrderDetail.route,
+            listOf(navArgument(NAV_ARG_ORDER_ID) {
+                type = NavType.LongType
+            })
+        ) { OrderDetailScreen(navController) }
     }
 }

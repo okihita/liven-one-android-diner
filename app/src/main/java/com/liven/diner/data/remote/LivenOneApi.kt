@@ -54,5 +54,5 @@ interface LivenOneApi {
     suspend fun getOrder(
         @Path("orderId") orderId: Long,
         @Query("status") status: String? = null
-    ): List<Order>
+    ): Order
 }

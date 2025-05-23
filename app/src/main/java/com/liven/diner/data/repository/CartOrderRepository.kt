@@ -27,6 +27,7 @@ interface CartOrderRepository {
 
     suspend fun postOrderRequest(request: OrderRequest): Result<Order>
     suspend fun getDinerOrders(status: String?): Result<List<Order>>
+    suspend fun getDinerSpecificOrder(orderId: Long): Result<Order>
 }
 
 data class CartItemUiState(val menuItem: MenuItem, val quantity: Int)
@@ -125,6 +126,13 @@ class CartOrderRepositoryImpl @Inject constructor(
 
     override suspend fun getDinerOrders(status: String?) = try {
         val result = livenOneApi.getOrders(status)
+        Result.success(result)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    override suspend fun getDinerSpecificOrder(orderId: Long) = try {
+        val result = livenOneApi.getOrder(orderId)
         Result.success(result)
     } catch (e: Exception) {
         Result.failure(e)

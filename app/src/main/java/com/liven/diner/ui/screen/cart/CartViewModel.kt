@@ -50,7 +50,7 @@ class CartViewModel @Inject constructor(
             val orderRequest = OrderRequest(venueId, orderItems)
             val placeOrderResult = cartOrderRepository.placeOrder(orderRequest)
             placeOrderResult.onSuccess {
-                _orderPlacementState.value = OrderPlacementState.Success(it.order)
+                _orderPlacementState.value = OrderPlacementState.Success(it)
             }.onFailure {
                 _orderPlacementState.value = OrderPlacementState.Error(it.message.toString())
             }

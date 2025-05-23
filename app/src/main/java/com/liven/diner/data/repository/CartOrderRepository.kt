@@ -1,8 +1,8 @@
 package com.liven.diner.data.repository
 
 import com.liven.diner.data.model.order.MenuItem
+import com.liven.diner.data.model.order.Order
 import com.liven.diner.data.model.order.OrderRequest
-import com.liven.diner.data.model.order.OrderResponse
 import com.liven.diner.data.remote.LivenOneApi
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -25,7 +25,7 @@ interface CartOrderRepository {
     fun getSelectedItemsForOrder(): Pair<Long?, Map<Long, Int>>
     fun clearCart()
 
-    suspend fun placeOrder(request: OrderRequest): Result<OrderResponse>
+    suspend fun placeOrder(request: OrderRequest): Result<Order>
 }
 
 data class CartItemUiState(val menuItem: MenuItem, val quantity: Int)

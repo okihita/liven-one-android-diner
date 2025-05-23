@@ -2,6 +2,7 @@ package com.liven.diner.di
 
 import com.liven.diner.data.remote.AuthInterceptor
 import com.liven.diner.data.remote.LivenOneApi
+import com.liven.diner.data.remote.UnauthorizedInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +19,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://10.10.1.73:8080/"
+    private const val BASE_URL = "http://192.168.68.169:8080/"
 
     val networkJson = Json {
         ignoreUnknownKeys = true
@@ -28,11 +29,13 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        authInterceptor: AuthInterceptor
+        authInterceptor: AuthInterceptor,
+        unauthorizedInterceptor: UnauthorizedInterceptor
     ): OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .addInterceptor(authInterceptor)
+            .addInterceptor(unauthorizedInterceptor)
             .build()
 
     @Singleton

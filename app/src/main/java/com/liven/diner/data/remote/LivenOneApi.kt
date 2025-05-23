@@ -7,7 +7,6 @@ import com.liven.diner.data.model.auth.RegisterResponse
 import com.liven.diner.data.model.order.MenuItem
 import com.liven.diner.data.model.order.Order
 import com.liven.diner.data.model.order.OrderRequest
-import com.liven.diner.data.model.order.OrderResponse
 import com.liven.diner.data.model.venue.VenuesResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -44,7 +43,7 @@ interface LivenOneApi {
     @POST("/diner/orders")
     suspend fun postOrder(
         @Body request: OrderRequest
-    ): OrderResponse
+    ): Order
 
     @GET("/diner/orders")
     suspend fun getOrders(

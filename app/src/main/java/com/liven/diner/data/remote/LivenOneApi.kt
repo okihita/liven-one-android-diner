@@ -49,4 +49,10 @@ interface LivenOneApi {
     suspend fun getOrders(
         @Query("status") status: String? = null
     ): List<Order>
+
+    @GET("/diner/orders/{orderId}")
+    suspend fun getOrder(
+        @Path("orderId") orderId: Long,
+        @Query("status") status: String? = null
+    ): List<Order>
 }

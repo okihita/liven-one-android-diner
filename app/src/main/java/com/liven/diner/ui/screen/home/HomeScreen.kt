@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,6 +29,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.liven.diner.data.model.venue.Venue
+import com.liven.diner.ui.common.AppBottomNavigationBar
+import com.liven.diner.ui.navigation.BottomNavItem
 import com.liven.diner.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +38,7 @@ import com.liven.diner.ui.navigation.Screen
 fun HomeScreen(
     navController: NavController,
     vm: HomeViewModel = hiltViewModel(),
-    onItemClick: (Venue) -> Unit
+    onVenueItemClick: (Venue) -> Unit
 ) {
     val getVenuesResult by vm.venuesResult.collectAsState()
 
@@ -58,6 +61,13 @@ fun HomeScreen(
         }
     }
 
+    // Define your bottom navigation items
+    val bottomNavItems = listOf(
+        BottomNavItem.Home,
+        BottomNavItem.OrderHistory
+        // Add BottomNavItem.Profile if you create it
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -71,6 +81,9 @@ fun HomeScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            AppBottomNavigationBar(navController, bottomNavItems)
         }
     ) { paddingValues ->
         Column(
@@ -79,8 +92,16 @@ fun HomeScreen(
                 .fillMaxSize()
         ) {
             when (getVenuesResult) {
-                GetVenuesResult.Idle -> {}
-                GetVenuesResult.Loading -> {}
+                GetVenuesResult.Idle -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Welcome! Loading venues...") // Or trigger fetch if not auto-triggered
+                    }
+                }
+                GetVenuesResult.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
                 is GetVenuesResult.Error -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
@@ -100,7 +121,7 @@ fun HomeScreen(
                         LazyColumn {
                             items(venues.size) { index ->
                                 val venue = venues[index]
-                                Venue(venue, onItemClick = onItemClick)
+                                Venue(venue, onItemClick = onVenueItemClick)
                             }
                         }
                     }

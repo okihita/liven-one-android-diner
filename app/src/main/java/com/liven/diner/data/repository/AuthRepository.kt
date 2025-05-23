@@ -15,6 +15,7 @@ interface AuthRepository {
     suspend fun postRegister(request: RegisterRequest): Result<RegisterResponse>
     suspend fun postLogin(request: LoginRequest): Result<LoginResponse>
     fun isLoggedIn(): Boolean
+    fun logoutUser()
 }
 
 @Singleton
@@ -23,8 +24,8 @@ class AuthRepositoryImpl @Inject constructor(
     private val authTokenProvider: AuthTokenProvider
 ) : AuthRepository {
 
-    override suspend fun postRegister(request: RegisterRequest): Result<RegisterResponse> {
-        return withContext(Dispatchers.IO) {
+    override suspend fun postRegister(request: RegisterRequest): Result<RegisterResponse> =
+        withContext(Dispatchers.IO) {
             try {
                 val response = livenOneApi.postRegister(request)
                 Result.success(response)
@@ -32,21 +33,19 @@ class AuthRepositoryImpl @Inject constructor(
                 Result.failure(e)
             }
         }
-    }
 
-    override suspend fun postLogin(request: LoginRequest): Result<LoginResponse> {
-        return withContext(Dispatchers.IO) {
+    override suspend fun postLogin(request: LoginRequest): Result<LoginResponse> =
+        withContext(Dispatchers.IO) {
             try {
                 val response = livenOneApi.postLogin(request)
                 authTokenProvider.saveAuthToken(response.token)
                 Result.success(response)
             } catch (e: Exception) {
                 Result.failure(e)
-            }
         }
     }
 
-    override fun isLoggedIn(): Boolean {
-        return authTokenProvider.loadAuthToken() != null
-    }
+    override fun isLoggedIn(): Boolean = authTokenProvider.loadAuthToken() != null
+
+    override fun logoutUser() = authTokenProvider.clearAuthToken()
 }

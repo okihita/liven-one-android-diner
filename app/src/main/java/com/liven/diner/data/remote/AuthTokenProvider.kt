@@ -8,6 +8,7 @@ import javax.inject.Singleton
 interface AuthTokenProvider {
     fun loadAuthToken(): String?
     fun saveAuthToken(token: String?)
+    fun clearAuthToken()
 }
 
 @Singleton
@@ -25,7 +26,7 @@ class SharedPreferencesAuthTokenProvider @Inject constructor(
         sharedPreferences.edit { putString(jwtTokenKey, token) }
     }
 
-    fun clearAuthToken() {
+    override fun clearAuthToken() {
         sharedPreferences.edit { remove(jwtTokenKey) }
     }
 }

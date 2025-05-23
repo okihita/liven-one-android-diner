@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.liven.diner.ui.navigation.NAV_ARG_VENUE_ID
 import com.liven.diner.ui.navigation.Screen
+import com.liven.diner.ui.screen.cart.CartScreen
 import com.liven.diner.ui.screen.home.HomeScreen
 import com.liven.diner.ui.screen.login.LoginScreen
 import com.liven.diner.ui.screen.register.RegisterScreen
@@ -63,8 +64,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.Home.route) {
-                            HomeScreen(onItemClick = { venue ->
-                                navController.navigate(Screen.VenueDetail.createRoute(venue.id))
+                            HomeScreen(
+                                navController = navController,
+                                onItemClick = { venue ->
+                                    navController.navigate(Screen.VenueDetail.createRoute(venue.id))
                             })
                         }
                         composable(
@@ -76,6 +79,9 @@ class MainActivity : ComponentActivity() {
                             val venueId = it.arguments?.getLong(NAV_ARG_VENUE_ID)
                             if (venueId != null) VenueDetailScreen(navController)
                             else Text("Error: Venue ID not found.")
+                        }
+                        composable(Screen.Cart.route) {
+                            CartScreen(navController)
                         }
                     }
                 }

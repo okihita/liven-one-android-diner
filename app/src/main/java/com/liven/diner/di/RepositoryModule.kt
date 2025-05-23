@@ -4,6 +4,8 @@ import com.liven.diner.data.remote.AuthTokenProvider
 import com.liven.diner.data.remote.SharedPreferencesAuthTokenProvider
 import com.liven.diner.data.repository.AuthRepository
 import com.liven.diner.data.repository.AuthRepositoryImpl
+import com.liven.diner.data.repository.CartOrderRepository
+import com.liven.diner.data.repository.CartOrderRepositoryImpl
 import com.liven.diner.data.repository.VenuesMenuItemsRepository
 import com.liven.diner.data.repository.VenuesMenuItemsRepositoryImpl
 import dagger.Binds
@@ -28,6 +30,11 @@ abstract class RepositoryModule {
         venuesMenuItemsRepositoryImpl: VenuesMenuItemsRepositoryImpl
     ): VenuesMenuItemsRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindCartOrderRepository(
+        cartOrderRepositoryImpl: CartOrderRepositoryImpl
+    ): CartOrderRepository
 
     @Binds
     @Singleton

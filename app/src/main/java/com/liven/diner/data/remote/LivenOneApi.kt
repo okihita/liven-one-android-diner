@@ -11,7 +11,6 @@ import com.liven.diner.data.model.order.OrderResponse
 import com.liven.diner.data.model.venue.VenuesResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -44,13 +43,11 @@ interface LivenOneApi {
     // --- Orders (Diner) ---
     @POST("/diner/orders")
     suspend fun postOrder(
-        @Header("Authorization") token: String,
         @Body request: OrderRequest
     ): OrderResponse
 
     @GET("/diner/orders")
     suspend fun getOrders(
-        @Header("Authorization") token: String,
         @Query("status") status: String? = null
     ): List<Order>
 }

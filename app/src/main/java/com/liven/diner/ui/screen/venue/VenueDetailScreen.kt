@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.liven.diner.data.model.order.MenuItem
+import com.liven.diner.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +45,8 @@ fun VenueDetailScreen(
     vm: VenueDetailViewModel = hiltViewModel()
 ) {
     val screenState by vm.screenState.collectAsState()
+    val cartItems by vm.cartItemsUiState.collectAsState()
+    val totalPriceCents by vm.totalPriceCents.collectAsState()
 
     Scaffold(
         topBar = {
@@ -60,20 +63,11 @@ fun VenueDetailScreen(
             )
         },
         floatingActionButton = {
-            // Show FAB only if there are items in the cart
-            if (screenState.cartItems.isNotEmpty()) {
+            if (cartItems.isNotEmpty()) {
                 ExtendedFloatingActionButton(
-                    onClick = {
-                        // TODO: Navigate to Cart/Checkout Screen
-                        // For now, log or show a toast
-                        // You'll pass screenState.cartItems and venueId to the next screen/ViewModel
-                        android.util.Log.d(
-                            "VenueDetailScreen",
-                            "Order Now clicked. Items: ${screenState.cartItems}, Total: ${screenState.totalPriceCents}"
-                        )
-                    },
+                    onClick = { navController.navigate(Screen.Cart.route) },
                     icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = "Cart") },
-                    text = { Text("View Cart (Rp %.0f)".format(screenState.totalPriceCents / 100.0)) }
+                    text = { Text("View Cart (IDR %.2f)".format(totalPriceCents / 100.0)) }
                 )
             }
         },
@@ -97,7 +91,10 @@ fun VenueDetailScreen(
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(screenState.menuItems.size) { index ->
                         val menuItem = screenState.menuItems[index]
-                        val quantity = screenState.selectedItems[menuItem.id] ?: 0
+
+                        val cartItem = cartItems.find { it.menuItem.id == menuItem.id }
+                        val quantity = cartItem?.quantity ?: 0
+
                         MenuItemRow(
                             menuItem = menuItem,
                             quantity = quantity,
@@ -134,7 +131,7 @@ fun MenuItemRow(
     trailingContent = {
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = "USD %.0f".format(menuItem.priceInCents / 100.0), // Basic formatting
+                text = "USD %.2f".format(menuItem.priceInCents / 100.0), // Basic formatting
                 style = MaterialTheme.typography.titleSmall
             )
             Spacer(Modifier.height(4.dp))
